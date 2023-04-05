@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   width: 360px;
@@ -46,17 +47,19 @@ const Info = styled.div`
 
 const Card = () => {
   return (
-    <Container>
-      <Image src="https://img.freepik.com/free-photo/neon-tropical-monstera-leaf-banner_53876-138943.jpg?w=2000" />
-      <Details>
-        <ChannelImage src="https://slp-statics.astockcdn.net/static_assets/staging/22spring/free/browse-vector-categories-collections/Card4_399895799.jpg?width=580" />
-        <Texts>
-          <Title>Test Video</Title>
-          <ChannelName>tuturu</ChannelName>
-          <Info>345,123 views • 1 day ago</Info>
-        </Texts>
-      </Details>
-    </Container>
+    <Link to="/video/test" style={{ textDecoration: "none" }}>
+      <Container>
+        <Image src="https://img.freepik.com/free-photo/neon-tropical-monstera-leaf-banner_53876-138943.jpg?w=2000" />
+        <Details>
+          <ChannelImage src="https://slp-statics.astockcdn.net/static_assets/staging/22spring/free/browse-vector-categories-collections/Card4_399895799.jpg?width=580" />
+          <Texts>
+            <Title>Test Video</Title>
+            <ChannelName>tuturu</ChannelName>
+            <Info>345,123 views • 1 day ago</Info>
+          </Texts>
+        </Details>
+      </Container>
+    </Link>
   );
 };
 
