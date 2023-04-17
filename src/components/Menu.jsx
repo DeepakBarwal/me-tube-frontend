@@ -130,7 +130,7 @@ const Menu = ({ darkMode, setDarkMode }) => {
           History
         </Item>
         <Hr />
-        {!currentUser && (
+        {!currentUser?.name && (
           <>
             <Login>
               Sign in to like videos, comment, and subscribe.
