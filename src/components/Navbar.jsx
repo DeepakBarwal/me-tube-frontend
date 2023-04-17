@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Container = styled.div`
-  postion: sticky;
+  position: sticky;
   top: 0;
   background-color: ${({ theme }) => theme.bgLighter};
   height: 56px;
@@ -18,7 +18,7 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   height: 100%;
   padding: 0px 20px;
-  postion: relative;
+  position: relative;
 `;
 
 const Search = styled.div`
@@ -75,7 +75,6 @@ const Avatar = styled.img`
 
 const Navbar = () => {
   const { currentUser } = useSelector((state) => state.user);
-  console.log(currentUser);
 
   return (
     <Container>
@@ -88,7 +87,7 @@ const Navbar = () => {
           <User>
             <VideoCallOutlinedIcon />
 
-            <Avatar />
+            <Avatar src={currentUser.img} />
             {currentUser?.name}
           </User>
         ) : (
