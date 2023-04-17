@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { format } from "timeago.js";
+import axios from "axios";
 
 const Container = styled.div`
   width: ${(props) => props.type !== "sm" && "360px"};
@@ -50,23 +53,33 @@ const Info = styled.div`
   color: ${({ theme }) => theme.textSoft};
 `;
 
-const Card = ({ type }) => {
+const Card = ({ type, video }) => {
+  const [channel, setChannel] = useState({});
+
+  useEffect(() => {
+    const fetchChannel = async () => {
+      try {
+        const response = await axios.get(`/users/${video.userId}`);
+        setChannel(response.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchChannel();
+  }, [video.userId]);
+
   return (
     <Link to="/video/test" style={{ textDecoration: "none" }}>
       <Container type={type}>
-        <Image
-          type={type}
-          src="https://img.freepik.com/free-photo/neon-tropical-monstera-leaf-banner_53876-138943.jpg?w=2000"
-        />
+        <Image type={type} src={video.imgUrl} />
         <Details type={type}>
-          <ChannelImage
-            type={type}
-            src="https://slp-statics.astockcdn.net/static_assets/staging/22spring/free/browse-vector-categories-collections/Card4_399895799.jpg?width=580"
-          />
+          <ChannelImage type={type} src={channel.img} />
           <Texts>
-            <Title>Test Video</Title>
-            <ChannelName>tuturu</ChannelName>
-            <Info>345,123 views • 1 day ago</Info>
+            <Title>{video.title}</Title>
+            <ChannelName>{channel.name}</ChannelName>
+            <Info>
+              {video.views} views • {format(video.createdAt)}
+            </Info>
           </Texts>
         </Details>
       </Container>
