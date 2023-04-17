@@ -1,10 +1,24 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import ThumbDownOffAltOutlinedIcon from "@mui/icons-material/ThumbDownOffAltOutlined";
 import ReplyOutlinedIcon from "@mui/icons-material/ReplyOutlined";
 import AddTaskOutlinedIcon from "@mui/icons-material/AddTaskOutlined";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import Comments from "../components/Comments";
 import Card from "../components/Card";
+import { useSelector, useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import {
+  fetchFailure,
+  fetchStart,
+  fetchSuccess,
+  like,
+  dislike,
+} from "../store/videoSlice";
+import { format } from "timeago.js";
 
 const Container = styled.div`
   display: flex;
@@ -109,6 +123,77 @@ const Subscribe = styled.button`
 `;
 
 const Video = () => {
+  const { currentUser } = useSelector((state) => state.user);
+  const { currentVideo } = useSelector((state) => state.video);
+  console.log(currentVideo);
+  const dispatch = useDispatch();
+
+  const path = useLocation().pathname.split("/")[2];
+
+  const [channel, setChannel] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(fetchStart());
+      try {
+        const videoRes = await axios.get(`/videos/${path}`);
+        const channelRes = await axios.get(
+          `/users/${videoRes.data.data.userId}`
+        );
+        const likeUrls = videoRes.data.data.likes.map(
+          (like) => `/likes/${like}`
+        );
+        const dislikeUrls = videoRes.data.data.dislikes.map(
+          (dislike) => `/dislikes/${dislike}`
+        );
+        const likeRequests = likeUrls.map((url) => axios.get(url));
+        const dislikeRequests = dislikeUrls.map((url) => axios.get(url));
+        const resp1 = await axios.all(likeRequests);
+        const resp2 = await axios.all(dislikeRequests);
+        const likes = resp1.map((res) => res.data.data);
+        const dislikes = resp2.map((res) => res.data.data);
+        dispatch(fetchSuccess({ ...videoRes.data.data, likes, dislikes }));
+        setChannel(channelRes.data.data);
+      } catch (error) {
+        console.error(error);
+        dispatch(fetchFailure());
+      }
+    };
+    fetchData();
+  }, [path, dispatch]);
+
+  const handleLike = async () => {
+    try {
+      dispatch(fetchStart());
+      await axios.post(`/likes/toggle`, null, {
+        params: {
+          modelId: currentVideo._id,
+          modelType: "Video",
+        },
+      });
+      dispatch(like(currentUser._id));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFailure());
+    }
+  };
+
+  const handleDislike = async () => {
+    try {
+      dispatch(fetchStart());
+      await axios.post(`/dislikes/toggle`, null, {
+        params: {
+          modelId: currentVideo._id,
+          modelType: "Video",
+        },
+      });
+      dispatch(dislike(currentUser._id));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFailure());
+    }
+  };
+
   return (
     <Container>
       <Content>
@@ -123,15 +208,29 @@ const Video = () => {
             allowfullscreen
           ></iframe>
         </VideoWrapper>
-        <Title>Test Video</Title>
+        <Title>{currentVideo.title}</Title>
         <Details>
-          <Info>345,123 views • 1 day ago</Info>
+          <Info>
+            {currentVideo.views} views • {format(currentVideo.createdAt)}
+          </Info>
           <Buttons>
-            <Button>
-              <ThumbUpOutlinedIcon /> 123
+            <Button onClick={handleLike}>
+              {currentVideo.likes?.includes(currentUser._id) ? (
+                <ThumbUpIcon />
+              ) : (
+                <>
+                  <ThumbUpOutlinedIcon />
+                </>
+              )}{" "}
+              {currentVideo.likes?.length}
             </Button>
-            <Button>
-              <ThumbDownOffAltOutlinedIcon /> Dislike
+            <Button onClick={handleDislike}>
+              {currentVideo.dislikes?.includes(currentUser._id) ? (
+                <ThumbDownIcon />
+              ) : (
+                <ThumbDownOffAltOutlinedIcon />
+              )}
+              {currentVideo.dislikes?.length}
             </Button>
             <Button>
               <ReplyOutlinedIcon /> Share
@@ -144,17 +243,13 @@ const Video = () => {
         <Hr />
         <Channel>
           <ChannelInfo>
-            <Image src="https://slp-statics.astockcdn.net/static_assets/staging/22spring/free/browse-vector-categories-collections/Card4_399895799.jpg?width=580" />
+            <Image src={channel.img} />
             <ChannelDetail>
-              <ChannelName>tuturu</ChannelName>
-              <ChannelCounter>900K subscribers</ChannelCounter>
-              <Description>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Perspiciatis tempora earum minus maiores quaerat explicabo
-                obcaecati accusantium ullam facere vero ratione officiis
-                sapiente minima, et incidunt dignissimos, aperiam numquam
-                consequatur.
-              </Description>
+              <ChannelName>{channel.name}</ChannelName>
+              <ChannelCounter>
+                {channel.subscribers?.length} subscribers
+              </ChannelCounter>
+              <Description>{currentVideo.desc}</Description>
             </ChannelDetail>
           </ChannelInfo>
           <Subscribe>SUBSCRIBE</Subscribe>
@@ -164,6 +259,7 @@ const Video = () => {
         <Comments />
       </Content>
       <Recommendation>
+        {/* <Card type="sm" />
         <Card type="sm" />
         <Card type="sm" />
         <Card type="sm" />
@@ -172,8 +268,7 @@ const Video = () => {
         <Card type="sm" />
         <Card type="sm" />
         <Card type="sm" />
-        <Card type="sm" />
-        <Card type="sm" />
+        <Card type="sm" /> */}
       </Recommendation>
     </Container>
   );
