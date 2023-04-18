@@ -10,9 +10,11 @@ const userSlice = createSlice({
   reducers: {
     loginStart: (state) => {
       state.loading = true;
+      state.error = false;
     },
     loginSuccess: (state, action) => {
       state.loading = false;
+      state.error = false;
       state.currentUser = action.payload;
     },
     loginFailure: (state) => {
@@ -35,6 +37,7 @@ const userSlice = createSlice({
       } else {
         state.currentUser.subscribedToUsers.push(action.payload);
       }
+      state.error = false;
     },
   },
 });

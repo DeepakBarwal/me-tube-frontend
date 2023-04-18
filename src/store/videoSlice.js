@@ -10,9 +10,11 @@ const videoSlice = createSlice({
   reducers: {
     fetchStart: (state) => {
       state.loading = true;
+      state.error = false;
     },
     fetchSuccess: (state, action) => {
       state.loading = false;
+      state.error = false;
       state.currentVideo = action.payload;
     },
     fetchFailure: (state) => {
@@ -36,6 +38,7 @@ const videoSlice = createSlice({
           1
         );
       }
+      state.error = false;
     },
     dislike: (state, action) => {
       if (!state.currentVideo.dislikes.includes(action.payload)) {
@@ -54,6 +57,7 @@ const videoSlice = createSlice({
           1
         );
       }
+      state.error = false;
     },
   },
 });

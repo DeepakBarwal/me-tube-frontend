@@ -135,62 +135,40 @@ const Video = () => {
 
   const [channel, setChannel] = useState({});
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     dispatch(fetchStart());
-  //     try {
-  //       const videoRes = await axios.get(`/videos/${path}`);
-  //       const channelRes = await axios.get(
-  //         `/users/${videoRes.data.data.userId}`
-  //       );
-  //       const likeUrls = videoRes.data.data.likes.map(
-  //         (like) => `/likes/${like}`
-  //       );
-  //       const dislikeUrls = videoRes.data.data.dislikes.map(
-  //         (dislike) => `/dislikes/${dislike}`
-  //       );
-  //       const likeRequests = likeUrls.map((url) => axios.get(url));
-  //       const dislikeRequests = dislikeUrls.map((url) => axios.get(url));
-  //       const resp1 = await axios.all(likeRequests);
-  //       const resp2 = await axios.all(dislikeRequests);
-  //       const likes = resp1.map((res) => res.data.data);
-  //       const dislikes = resp2.map((res) => res.data.data);
-  //       dispatch(fetchSuccess({ ...videoRes.data.data, likes, dislikes }));
-  //       setChannel(channelRes.data.data);
-  //     } catch (error) {
-  //       console.error(error);
-  //       dispatch(fetchFailure());
-  //     }
-  //   };
-  //   fetchData();
-  // }, [path, dispatch]);
-
-  const fetchData = async () => {
-    dispatch(fetchStart());
-    try {
-      const videoRes = await axios.get(`/videos/${path}`);
-      const channelRes = await axios.get(`/users/${videoRes.data.data.userId}`);
-      const likeUrls = videoRes.data.data.likes.map((like) => `/likes/${like}`);
-      const dislikeUrls = videoRes.data.data.dislikes.map(
-        (dislike) => `/dislikes/${dislike}`
-      );
-      const likeRequests = likeUrls.map((url) => axios.get(url));
-      const dislikeRequests = dislikeUrls.map((url) => axios.get(url));
-      const resp1 = await axios.all(likeRequests);
-      const resp2 = await axios.all(dislikeRequests);
-      const likes = resp1.map((res) => res.data.data);
-      const dislikes = resp2.map((res) => res.data.data);
-      dispatch(fetchSuccess({ ...videoRes.data.data, likes, dislikes }));
-      setChannel(channelRes.data.data);
-    } catch (error) {
-      console.error(error);
-      dispatch(fetchFailure());
-    }
+  const fetchLikesAndDislikes = async (videoRes) => {
+    const likeUrls = videoRes.likes.map((like) => `/likes/${like}`);
+    const dislikeUrls = videoRes.dislikes.map(
+      (dislike) => `/dislikes/${dislike}`
+    );
+    const likeRequests = likeUrls.map((url) => axios.get(url));
+    const dislikeRequests = dislikeUrls.map((url) => axios.get(url));
+    const resp1 = await axios.all(likeRequests);
+    const resp2 = await axios.all(dislikeRequests);
+    const likes = resp1.map((res) => res.data.data);
+    const dislikes = resp2.map((res) => res.data.data);
+    return [likes, dislikes];
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      dispatch(fetchStart());
+      try {
+        const videoRes = await axios.get(`/videos/${path}`);
+        const channelRes = await axios.get(
+          `/users/${videoRes.data.data.userId}`
+        );
+        const [likes, dislikes] = await fetchLikesAndDislikes(
+          videoRes.data.data
+        );
+        dispatch(fetchSuccess({ ...videoRes.data.data, likes, dislikes }));
+        setChannel(channelRes.data.data);
+      } catch (error) {
+        console.error(error);
+        dispatch(fetchFailure());
+      }
+    };
     fetchData();
-  }, [path]);
+  }, [path, dispatch]);
 
   const handleLike = async () => {
     try {
@@ -201,7 +179,8 @@ const Video = () => {
         },
       });
       dispatch(like(currentUser._id));
-      fetchData();
+
+      fetchLikesAndDislikes(currentVideo);
     } catch (error) {
       console.error(error);
     }
@@ -216,7 +195,7 @@ const Video = () => {
         },
       });
       dispatch(dislike(currentUser._id));
-      fetchData();
+      fetchLikesAndDislikes(currentVideo);
     } catch (error) {
       console.error(error);
     }
@@ -233,13 +212,17 @@ const Video = () => {
     }
   };
 
+  console.log("user", currentUser);
+  console.log("channel", channel);
+  console.log("video", currentVideo);
+
   return (
     <Container>
       <Content>
         <VideoWrapper>
-          <VideoFrame src={currentVideo.videoUrl} controls />
+          <VideoFrame src={currentVideo?.videoUrl} controls />
         </VideoWrapper>
-        <Title>{currentVideo.title}</Title>
+        <Title>{currentVideo?.title}</Title>
         <Details>
           <Info>
             {currentVideo.views} views • {format(currentVideo.createdAt)}
@@ -283,11 +266,13 @@ const Video = () => {
               <Description>{currentVideo.desc}</Description>
             </ChannelDetail>
           </ChannelInfo>
-          <Subscribe onClick={handleSub}>
-            {currentUser.subscribedToUsers?.includes(channel._id)
-              ? "SUBSCRIBED"
-              : "SUBSCRIBE"}
-          </Subscribe>
+          {currentUser._id !== currentVideo.userId && (
+            <Subscribe onClick={handleSub}>
+              {currentUser.subscribedToUsers?.includes(channel._id)
+                ? "SUBSCRIBED"
+                : "SUBSCRIBE"}
+            </Subscribe>
+          )}
         </Channel>
 
         <Hr />
