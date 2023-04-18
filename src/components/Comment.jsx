@@ -1,4 +1,7 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { format } from "timeago.js";
 
 const Container = styled.div`
   display: flex;
@@ -35,20 +38,29 @@ const Text = styled.span`
   font-size: 14px;
 `;
 
-const Comment = () => {
+const Comment = ({ comment }) => {
+  const [channel, setChannel] = useState([]);
+
+  useEffect(() => {
+    const fetchChannel = async () => {
+      try {
+        const res = await axios.get(`/users/${comment.userId}`);
+        setChannel(res.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchChannel();
+  }, [comment.userId]);
+
   return (
     <Container>
-      <Avatar src="https://slp-statics.astockcdn.net/static_assets/staging/22spring/free/browse-vector-categories-collections/Card4_399895799.jpg?width=580" />
+      <Avatar src={channel.img} />
       <Details>
         <Name>
-          John Doe <Date>1 day ago</Date>
+          {channel.name} <Date>{format(comment.createdAt)}</Date>
         </Name>
-        <Text>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Sequi
-          adipisci fuga impedit officia quis corporis omnis eligendi nostrum
-          quos veniam, commodi, perspiciatis, nesciunt error enim? Iste in
-          soluta accusantium fuga.
-        </Text>
+        <Text>{comment.content}</Text>
       </Details>
     </Container>
   );

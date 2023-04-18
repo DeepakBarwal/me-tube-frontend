@@ -132,8 +132,7 @@ const VideoFrame = styled.video`
 const Video = () => {
   const { currentUser } = useSelector((state) => state.user);
   const { currentVideo } = useSelector((state) => state.video);
-  console.log(currentVideo);
-  console.log(currentUser);
+
   const dispatch = useDispatch();
 
   const path = useLocation().pathname.split("/")[2];
@@ -269,7 +268,7 @@ const Video = () => {
         </Channel>
 
         <Hr />
-        <Comments />
+        <Comments videoId={currentVideo._id} />
       </Content>
       <Recommendation>
         {/* <Card type="sm" />
