@@ -13,6 +13,7 @@ import store from "./store/store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor } from "./store/store";
+import Search from "./pages/Search";
 
 const Container = styled.div`
   display: flex;
@@ -47,6 +48,7 @@ function App() {
                         path="/subscriptions"
                         element={<Home type="subscriptions" />}
                       />
+                      <Route path="/search" element={<Search />} />
                       <Route path="signin" element={<SignIn />} />
                       <Route path="video">
                         <Route path=":id" element={<Video />} />
