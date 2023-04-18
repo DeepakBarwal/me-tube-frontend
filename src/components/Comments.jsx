@@ -28,8 +28,19 @@ const Input = styled.input`
   color: ${({ theme }) => theme.text};
 `;
 
+const Button = styled.button`
+  border: none;
+  border-radius: 3px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: ${({ theme }) => theme.soft};
+  color: ${({ theme }) => theme.textSoft};
+`;
+
 const Comments = ({ videoId }) => {
   const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
 
   const { currentUser } = useSelector((state) => state.user);
 
@@ -45,11 +56,38 @@ const Comments = ({ videoId }) => {
     fetchComments();
   }, [videoId]);
 
+  const addComment = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        `/comments`,
+        {
+          content: newComment,
+        },
+        {
+          params: {
+            modelType: "Video",
+            modelId: videoId,
+          },
+        }
+      );
+      setComments([...comments, res.data.data]);
+      setNewComment("");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Container>
       <NewComment>
         <Avatar src={currentUser.img} />
-        <Input placeholder="Add a comment..." />
+        <Input
+          placeholder="Add a comment..."
+          onChange={(e) => setNewComment(e.target.value)}
+          value={newComment}
+        />
+        <Button onClick={addComment}>Post</Button>
       </NewComment>
       {comments.map((comment) => (
         <Comment key={comment._id} comment={comment} />

@@ -212,10 +212,6 @@ const Video = () => {
     }
   };
 
-  console.log("user", currentUser);
-  console.log("channel", channel);
-  console.log("video", currentVideo);
-
   return (
     <Container>
       <Content>
