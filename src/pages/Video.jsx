@@ -19,6 +19,7 @@ import {
   dislike,
 } from "../store/videoSlice";
 import { format } from "timeago.js";
+import { subscription } from "../store/userSlice";
 
 const Container = styled.div`
   display: flex;
@@ -122,10 +123,17 @@ const Subscribe = styled.button`
   align-items: center;
 `;
 
+const VideoFrame = styled.video`
+  max-height: 720px;
+  width: 100%;
+  object-fit: cover;
+`;
+
 const Video = () => {
   const { currentUser } = useSelector((state) => state.user);
   const { currentVideo } = useSelector((state) => state.video);
   console.log(currentVideo);
+  console.log(currentUser);
   const dispatch = useDispatch();
 
   const path = useLocation().pathname.split("/")[2];
@@ -180,7 +188,6 @@ const Video = () => {
 
   const handleDislike = async () => {
     try {
-      dispatch(fetchStart());
       await axios.post(`/dislikes/toggle`, null, {
         params: {
           modelId: currentVideo._id,
@@ -190,7 +197,17 @@ const Video = () => {
       dispatch(dislike(currentUser._id));
     } catch (error) {
       console.error(error);
-      dispatch(fetchFailure());
+    }
+  };
+
+  const handleSub = async () => {
+    try {
+      currentUser.subscribedToUsers.includes(channel._id)
+        ? await axios.post(`/users/unsubscribe/${channel._id}`)
+        : await axios.post(`/users/subscribe/${channel._id}`);
+      dispatch(subscription(channel._id));
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -198,15 +215,7 @@ const Video = () => {
     <Container>
       <Content>
         <VideoWrapper>
-          <iframe
-            width="100%"
-            height="500px"
-            src="https://www.youtube.com/embed/WX0xWJpr0FY"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-          ></iframe>
+          <VideoFrame src={currentVideo.videoUrl} />
         </VideoWrapper>
         <Title>{currentVideo.title}</Title>
         <Details>
@@ -252,7 +261,11 @@ const Video = () => {
               <Description>{currentVideo.desc}</Description>
             </ChannelDetail>
           </ChannelInfo>
-          <Subscribe>SUBSCRIBE</Subscribe>
+          <Subscribe onClick={handleSub}>
+            {currentUser.subscribedToUsers?.includes(channel._id)
+              ? "SUBSCRIBED"
+              : "SUBSCRIBE"}
+          </Subscribe>
         </Channel>
 
         <Hr />

@@ -24,10 +24,22 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = false;
     },
+    subscription: (state, action) => {
+      if (state.currentUser.subscribedToUsers.includes(action.payload)) {
+        state.currentUser.subscribedToUsers.splice(
+          state.currentUser.subscribedToUsers.findIndex(
+            (channelId) => channelId === action.payload
+          ),
+          1
+        );
+      } else {
+        state.currentUser.subscribedToUsers.push(action.payload);
+      }
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } =
+export const { loginStart, loginSuccess, loginFailure, logout, subscription } =
   userSlice.actions;
 
 export default userSlice.reducer;
