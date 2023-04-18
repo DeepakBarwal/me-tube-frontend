@@ -5,6 +5,8 @@ import VideoCallOutlinedIcon from "@mui/icons-material/VideoCallOutlined";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/userSlice";
+import { useState } from "react";
+import Upload from "./Upload";
 
 const Container = styled.div`
   position: sticky;
@@ -75,6 +77,7 @@ const Avatar = styled.img`
 `;
 
 const Navbar = () => {
+  const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
@@ -83,30 +86,35 @@ const Navbar = () => {
   };
 
   return (
-    <Container>
-      <Wrapper>
-        <Search>
-          <Input placeholder="Search" />
-          <SearchOutlinedIcon />
-        </Search>
-        {currentUser?.name ? (
-          <User>
-            <VideoCallOutlinedIcon />
+    <>
+      <Container>
+        <Wrapper>
+          <Search>
+            <Input placeholder="Search" />
+            <SearchOutlinedIcon />
+          </Search>
+          {currentUser?.name ? (
+            <User>
+              <VideoCallOutlinedIcon
+                onClick={() => setIsVideoPopupOpen(true)}
+              />
 
-            <Avatar src={currentUser.img} />
-            {currentUser?.name}
-            <Button onClick={logoutUser}>Logout</Button>
-          </User>
-        ) : (
-          <Link to="/signin" style={{ textDecoration: "none" }}>
-            <Button>
-              <AccountCircleOutlinedIcon />
-              SIGN IN
-            </Button>
-          </Link>
-        )}
-      </Wrapper>
-    </Container>
+              <Avatar src={currentUser.img} />
+              {currentUser?.name}
+              <Button onClick={logoutUser}>Logout</Button>
+            </User>
+          ) : (
+            <Link to="/signin" style={{ textDecoration: "none" }}>
+              <Button>
+                <AccountCircleOutlinedIcon />
+                SIGN IN
+              </Button>
+            </Link>
+          )}
+        </Wrapper>
+      </Container>
+      {isVideoPopupOpen && <Upload setOpen={setIsVideoPopupOpen} />}
+    </>
   );
 };
 
