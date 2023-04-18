@@ -66,7 +66,7 @@ const Card = ({ type, video }) => {
       }
     };
     fetchChannel();
-  }, [video.userId]);
+  }, [type, video]);
 
   return (
     <Link to={`/video/${video._id}`} style={{ textDecoration: "none" }}>

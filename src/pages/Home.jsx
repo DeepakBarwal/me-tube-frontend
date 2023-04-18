@@ -32,7 +32,7 @@ const Home = ({ type }) => {
       try {
         const response = await axios.get(`/videos/${type}`);
         setVideos(response.data.data);
-        fetchSuccess(response.data.data);
+        dispatch(fetchSuccess(response.data.data));
       } catch (error) {
         console.error(error);
         dispatch(fetchFailure());

@@ -87,6 +87,7 @@ const SignIn = () => {
         name,
         password,
       });
+      console.log(response);
       dispatch(loginSuccess(response.data.data.withoutPassword));
       navigate("/");
     } catch (error) {

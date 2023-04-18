@@ -160,7 +160,15 @@ const Video = () => {
         const [likes, dislikes] = await fetchLikesAndDislikes(
           videoRes.data.data
         );
-        dispatch(fetchSuccess({ ...videoRes.data.data, likes, dislikes }));
+        var res = await axios.put(`/videos/view/${videoRes.data.data._id}`);
+        dispatch(
+          fetchSuccess({
+            ...videoRes.data.data,
+            likes,
+            dislikes,
+            views: res.data.data.views,
+          })
+        );
         setChannel(channelRes.data.data);
       } catch (error) {
         console.error(error);

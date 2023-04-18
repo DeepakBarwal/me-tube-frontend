@@ -47,8 +47,10 @@ const Comments = ({ videoId }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`/comments/${videoId}`);
-        setComments(res.data.data);
+        if (videoId) {
+          const res = await axios.get(`/comments/${videoId}`);
+          setComments(res.data.data);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -89,9 +91,10 @@ const Comments = ({ videoId }) => {
         />
         <Button onClick={addComment}>Post</Button>
       </NewComment>
-      {comments.map((comment) => (
-        <Comment key={comment._id} comment={comment} />
-      ))}
+      {comments &&
+        comments.map((comment) => (
+          <Comment key={comment._id} comment={comment} />
+        ))}
     </Container>
   );
 };
