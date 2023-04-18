@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { loginFailure, loginStart, loginSuccess } from "../store/userSlice";
 import { auth, provider } from "../utils/firebase.js";
 import { signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -23,6 +24,7 @@ const Wrapper = styled.div`
   border: 1px solid ${({ theme }) => theme.soft};
   padding: 20px 50px;
   gap: 10px;
+  color: ${({ theme }) => theme.text};
 `;
 
 const Title = styled.h1`
@@ -41,6 +43,7 @@ const Input = styled.input`
   background-color: transparent;
   outline: none;
   width: 100%;
+  color: ${({ theme }) => theme.text};
 `;
 
 const Button = styled.button`
@@ -74,6 +77,7 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -84,6 +88,7 @@ const SignIn = () => {
         password,
       });
       dispatch(loginSuccess(response.data.data.withoutPassword));
+      navigate("/");
     } catch (error) {
       console.error(error);
       dispatch(loginFailure());

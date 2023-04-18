@@ -85,6 +85,7 @@ const Navbar = () => {
 
   const logoutUser = async () => {
     dispatch(logout());
+    navigate("/signin");
   };
 
   return (
